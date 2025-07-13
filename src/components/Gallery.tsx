@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface Project {
@@ -20,52 +20,6 @@ interface ImageCache {
   [category: string]: GalleryImage[];
 }
 
-interface ImageLoadState {
-  [imageUrl: string]: 'loading' | 'loaded' | 'error';
-}
-
-// Memoized image component for better performance
-const GalleryImage = React.memo<{
-  project: Project;
-  imageLoadStates: ImageLoadState;
-  preloadedImages: Set<string>;
-  observerRef: React.RefObject<IntersectionObserver>;
-  onImageLoad: (imageUrl: string) => void;
-  onImageError: (imageUrl: string) => void;
-  onImageLoadStart: (imageUrl: string) => void;
-  index: number;
-}>(({ project, imageLoadStates, preloadedImages, observerRef, onImageLoad, onImageError, onImageLoadStart, index }) => {
-  return (
-    <div className="relative overflow-hidden rounded-lg shadow-md sm:shadow-lg shadow-gray-200">
-      {/* Loading skeleton */}
-      {imageLoadStates[project.image] === 'loading' && (
-        <div className="w-full h-24 sm:h-32 md:h-40 lg:h-48 image-skeleton rounded-lg" />
-      )}
-      
-      {/* Image */}
-      <img
-        ref={(el) => {
-          if (el && observerRef.current && !preloadedImages.has(project.image)) {
-            el.dataset.src = project.image;
-            observerRef.current.observe(el);
-          }
-        }}
-        src={preloadedImages.has(project.image) ? project.image : ''}
-        alt={project.description}
-        className={`w-full h-24 sm:h-32 md:h-40 lg:h-48 object-cover transition-all duration-300 group-hover:scale-110 ${
-          imageLoadStates[project.image] === 'loading' ? 'opacity-0' : 'opacity-100 image-fade-in'
-        }`}
-        loading={index < 6 ? 'eager' : 'lazy'}
-        onLoad={() => onImageLoad(project.image)}
-        onError={() => onImageError(project.image)}
-        onLoadStart={() => onImageLoadStart(project.image)}
-      />
-    </div>
-  );
-});
-
-GalleryImage.displayName = 'GalleryImage';
-
 const Gallery: React.FC = () => {
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -75,9 +29,6 @@ const Gallery: React.FC = () => {
   const [shuffledImageCache, setShuffledImageCache] = useState<ImageCache>({});
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [isClient, setIsClient] = useState(false);
-  const [imageLoadStates, setImageLoadStates] = useState<ImageLoadState>({});
-  const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Responsive items per page: 9 for mobile, 8 for desktop
   useEffect(() => {
@@ -248,38 +199,6 @@ const Gallery: React.FC = () => {
     return images;
   }, []);
 
-  // Preload images function
-  const preloadImage = useCallback((src: string) => {
-    return new Promise<void>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        setPreloadedImages(prev => new Set(prev).add(src));
-        setImageLoadStates(prev => ({ ...prev, [src]: 'loaded' }));
-        resolve();
-      };
-      img.onerror = () => {
-        setImageLoadStates(prev => ({ ...prev, [src]: 'error' }));
-        reject();
-      };
-      img.src = src;
-    });
-  }, []);
-
-  // Preload next page images
-  const preloadNextPageImages = useCallback((projects: Project[]) => {
-    const nextPageStart = currentPage * effectiveItemsPerPage;
-    const nextPageEnd = nextPageStart + effectiveItemsPerPage;
-    const nextPageImages = projects.slice(nextPageStart, nextPageEnd);
-    
-    nextPageImages.forEach(project => {
-      if (!preloadedImages.has(project.image)) {
-        preloadImage(project.image).catch(() => {
-          // Silently handle preload errors
-        });
-      }
-    });
-  }, [currentPage, effectiveItemsPerPage, preloadedImages, preloadImage]);
-
   // Load all images for all categories - instant generation
   useEffect(() => {
     if (isClient) {
@@ -295,8 +214,6 @@ const Gallery: React.FC = () => {
       setShuffledImageCache(newShuffledImageCache);
     }
   }, [isClient, generateImagePaths, shuffleArray]);
-
-
 
   // Create all projects from all categories, filtering out failed images
   const allProjects = useMemo(() => {
@@ -376,53 +293,6 @@ const Gallery: React.FC = () => {
     }
   }, [filteredProjects.length, currentPage, effectiveItemsPerPage]);
 
-  // Preload current page images and next page
-  useEffect(() => {
-    if (currentProjects.length > 0) {
-      // Preload current page images
-      currentProjects.forEach(project => {
-        if (!preloadedImages.has(project.image)) {
-          preloadImage(project.image).catch(() => {
-            // Silently handle preload errors
-          });
-        }
-      });
-
-      // Preload next page images
-      preloadNextPageImages(filteredProjects);
-    }
-  }, [currentProjects, filteredProjects, preloadImage, preloadNextPageImages, preloadedImages]);
-
-  // Setup intersection observer for better lazy loading
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !observerRef.current) {
-      observerRef.current = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const img = entry.target as HTMLImageElement;
-              if (img.dataset.src) {
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                observerRef.current?.unobserve(img);
-              }
-            }
-          });
-        },
-        {
-          rootMargin: '50px 0px',
-          threshold: 0.1
-        }
-      );
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, []);
-
   console.log('Current page:', currentPage, 'of', totalPages);
   console.log('Current projects count:', currentProjects.length);
 
@@ -441,6 +311,11 @@ const Gallery: React.FC = () => {
       setCurrentPage(currentPage + 1);
     }
   };
+
+  const handleImageError = useCallback((imageUrl: string) => {
+    console.error('Image failed to load:', imageUrl);
+    setImageLoadErrors(prev => new Set(prev).add(imageUrl));
+  }, []);
 
   return (
     <section id="gallery" className="py-8 sm:py-16 px-2 sm:px-4 bg-white">
@@ -481,24 +356,15 @@ const Gallery: React.FC = () => {
                 className="group cursor-pointer transform transition-all duration-300 hover:scale-105"
                 onClick={() => setSelectedProject(project)}
               >
-                <GalleryImage
-                  project={project}
-                  imageLoadStates={imageLoadStates}
-                  preloadedImages={preloadedImages}
-                  observerRef={observerRef}
-                  index={index}
-                  onImageLoad={(imageUrl) => {
-                    setImageLoadStates(prev => ({ ...prev, [imageUrl]: 'loaded' }));
-                  }}
-                  onImageError={(imageUrl) => {
-                    console.error('Image failed to load:', imageUrl);
-                    setImageLoadErrors(prev => new Set(prev).add(imageUrl));
-                    setImageLoadStates(prev => ({ ...prev, [imageUrl]: 'error' }));
-                  }}
-                  onImageLoadStart={(imageUrl) => {
-                    setImageLoadStates(prev => ({ ...prev, [imageUrl]: 'loading' }));
-                  }}
-                />
+                <div className="relative overflow-hidden rounded-lg shadow-md sm:shadow-lg shadow-gray-200 bg-gray-100">
+                  <img
+                    src={project.image}
+                    alt={project.description}
+                    className="w-full h-24 sm:h-32 md:h-40 lg:h-48 object-contain transition-transform duration-300 group-hover:scale-110"
+                    loading={index < 6 ? 'eager' : 'lazy'}
+                    onError={() => handleImageError(project.image)}
+                  />
+                </div>
               </div>
             ))
           ) : (

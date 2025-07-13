@@ -1364,12 +1364,23 @@ export const useLanguage = () => {
 // Language detection functions
 const detectUserPreference = (): LanguageCode | null => {
   try {
+    // Check localStorage first
     const saved = localStorage.getItem('extensoapps-language');
     if (saved && saved in SUPPORTED_LANGUAGES) {
       return saved as LanguageCode;
     }
+
+    // Check cookies as fallback
+    const cookies = document.cookie.split(';');
+    const languageCookie = cookies.find(cookie => cookie.trim().startsWith('preferred-language='));
+    if (languageCookie) {
+      const language = languageCookie.split('=')[1];
+      if (language in SUPPORTED_LANGUAGES) {
+        return language as LanguageCode;
+      }
+    }
   } catch (error) {
-    console.warn('Could not read from localStorage:', error);
+    console.warn('Could not read from localStorage or cookies:', error);
   }
   return null;
 };
@@ -1387,12 +1398,14 @@ const detectCountryFromIP = async (): Promise<LanguageCode | null> => {
 };
 
 const detectBrowserLanguage = (): LanguageCode => {
+  if (typeof navigator === 'undefined') return 'es';
+  
   const browserLang = navigator.language.split('-')[0];
   return (browserLang in SUPPORTED_LANGUAGES ? browserLang : 'es') as LanguageCode;
 };
 
 const detectLanguage = async (): Promise<LanguageCode> => {
-  // Tier 1: User Preference
+  // Tier 1: User Preference (localStorage or cookies)
   const userPref = detectUserPreference();
   if (userPref) return userPref;
 
@@ -1421,9 +1434,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setLanguage = (lang: LanguageCode) => {
     setLanguageState(lang);
     try {
+      // Save to localStorage
       localStorage.setItem('extensoapps-language', lang);
+      
+      // Save to cookies for middleware access
+      document.cookie = `preferred-language=${lang}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
     } catch (error) {
-      console.warn('Could not save to localStorage:', error);
+      console.warn('Could not save language preference:', error);
     }
   };
 
