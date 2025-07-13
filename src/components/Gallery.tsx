@@ -360,7 +360,7 @@ const Gallery: React.FC = () => {
                   <img
                     src={project.image}
                     alt={project.description}
-                    className="w-full h-24 sm:h-32 md:h-40 lg:h-48 object-contain transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-24 sm:h-32 md:h-40 lg:h-48 object-cover transition-transform duration-300 group-hover:scale-110"
                     loading={index < 6 ? 'eager' : 'lazy'}
                     onError={() => handleImageError(project.image)}
                   />
