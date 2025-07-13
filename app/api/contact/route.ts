@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
     const mailOptions = {
       from: process.env.EMAIL_USER || 'your-email@gmail.com',
       to: 'office.dplack@gmail.com',
-      subject: `New Contact Form Submission - ${name}`,
+      subject: `Dplack.eu - ai primit un email nou de la ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0F75BC;">New Contact Form Submission</h2>
+          <h2 style="color: #0F75BC;">Ai primit un email nou de pe DPLACK.EU</h2>
           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Contact Information</h3>
             <p><strong>Name:</strong> ${name}</p>
