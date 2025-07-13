@@ -12,6 +12,12 @@ const nextConfig = {
   experimental: {
     outputFileTracingRoot: undefined,
   },
+  // Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
+  // Optimize bundle size
+  swcMinify: true,
 }
 
 module.exports = nextConfig 
