@@ -218,7 +218,6 @@ const getStructuredData = (lang: string) => {
 
 export default function LanguageLayout({ children, params }: LayoutProps) {
   const { lang } = params;
-  const language = SUPPORTED_LANGUAGES[lang as keyof typeof SUPPORTED_LANGUAGES];
   
   return (
     <>

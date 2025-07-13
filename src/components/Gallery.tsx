@@ -360,7 +360,7 @@ const Gallery: React.FC = () => {
                     onLoad={() => {
                       console.log('Image loaded successfully:', project.image);
                     }}
-                    onError={(e) => {
+                    onError={() => {
                       console.error('Image failed to load:', project.image);
                       setImageLoadErrors(prev => new Set(prev).add(project.image));
                     }}
@@ -448,7 +448,7 @@ const Gallery: React.FC = () => {
                 alt={selectedProject.description}
                 className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg cursor-pointer"
                 onClick={() => setSelectedProject(null)}
-                onError={(e) => {
+                onError={() => {
                   console.error('Modal image failed to load:', selectedProject.image);
                 }}
               />

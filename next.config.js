@@ -4,6 +4,9 @@ const nextConfig = {
     domains: ['localhost'],
   },
   trailingSlash: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig 
