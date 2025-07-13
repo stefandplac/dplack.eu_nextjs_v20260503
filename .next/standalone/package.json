@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start":  "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
     "docker:build": "docker build -t dplack-nextjs .",
     "docker:run": "docker run -p 3000:3000 dplack-nextjs"
