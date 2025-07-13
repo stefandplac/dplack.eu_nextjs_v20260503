@@ -2,12 +2,16 @@
 const nextConfig = {
   images: {
     domains: ['localhost'],
+    unoptimized: true,
   },
   trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: 'standalone'
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot: undefined,
+  },
 }
 
 module.exports = nextConfig 
