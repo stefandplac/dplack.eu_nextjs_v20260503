@@ -36,7 +36,7 @@ Make sure your repository contains:
 
 3. **Build Configuration**
    - **Build Pack**: `Dockerfile`
-   - **Dockerfile Path**: `./Dockerfile`
+   - **Dockerfile Path**: `./Dockerfile` (or `./Dockerfile.prod` for production)
    - **Port**: `3000`
 
 4. **Environment Variables**
@@ -76,17 +76,26 @@ Make sure your repository contains:
 
 ### Common Issues:
 
-1. **Build Fails**
+1. **Build Fails with "Cannot find module 'tailwindcss'"**
+   - **Solution**: The Dockerfile now installs ALL dependencies (including dev dependencies)
+   - **Cause**: Build tools like TailwindCSS are in devDependencies but needed for build
+   - **Fixed**: Updated Dockerfile to use `npm ci` instead of `npm ci --only=production`
+
+2. **Docker ENV Format Warnings**
+   - **Solution**: Updated all ENV statements to use `ENV key=value` format
+   - **Fixed**: All environment variables now use proper Docker syntax
+
+3. **Build Fails**
    - Check Dockerfile syntax
    - Verify all dependencies are in package.json
    - Check build logs in Coolify
 
-2. **Application Won't Start**
+4. **Application Won't Start**
    - Verify PORT environment variable is set
    - Check application logs in Coolify
    - Ensure all required environment variables are set
 
-3. **Contact Form Not Working**
+5. **Contact Form Not Working**
    - Verify EMAIL_USER and EMAIL_PASS are set
    - Check Gmail App Password is correct
    - Test email configuration
