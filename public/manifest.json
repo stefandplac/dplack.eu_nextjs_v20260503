@@ -1,0 +1,38 @@
+{
+  "short_name": "D-PLACK CONSTRUCT",
+  "name": "D-PLACK CONSTRUCT - Construcción y Rehabilitación Profesional",
+  "description": "Especialistas en construcción, demolición, pintura, pavimentos, aislamiento e instalaciones eléctricas y térmicas. Calidad, profesionalidad y satisfacción del cliente garantizada.",
+  "icons": [
+    {
+      "src": "logo/mainlogo.jpg",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0F75BC",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["business", "construction", "home improvement"],
+  "screenshots": [
+    {
+      "src": "logo/mainlogo.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ]
+}
