@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 
 // Supported languages with flags
 export const SUPPORTED_LANGUAGES = {
@@ -1420,18 +1420,22 @@ const detectLanguage = async (): Promise<LanguageCode> => {
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<LanguageCode>('es');
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const initializeLanguage = async () => {
+      if (isInitialized) return;
+      
       const detectedLang = await detectLanguage();
       setLanguageState(detectedLang);
       setIsLoading(false);
+      setIsInitialized(true);
     };
 
     initializeLanguage();
-  }, []);
+  }, [isInitialized]);
 
-  const setLanguage = (lang: LanguageCode) => {
+  const setLanguage = useCallback((lang: LanguageCode) => {
     setLanguageState(lang);
     try {
       // Save to localStorage
@@ -1442,26 +1446,28 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (error) {
       console.warn('Could not save language preference:', error);
     }
-  };
+  }, []);
 
-  const t = (key: string): string => {
+  const t = useCallback((key: string): string => {
     const currentTranslations = translations[language];
     return currentTranslations[key as keyof typeof currentTranslations] || 
            translations.es[key as keyof typeof translations.es] || 
            key;
-  };
+  }, [language]);
+
+  const contextValue = useMemo(() => ({
+    language,
+    setLanguage,
+    t,
+    supportedLanguages: SUPPORTED_LANGUAGES
+  }), [language, setLanguage, t]);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <LanguageContext.Provider value={{
-      language,
-      setLanguage,
-      t,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

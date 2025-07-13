@@ -11,6 +11,15 @@ const LanguageSwitcher: React.FC = () => {
 
   const changeLanguage = (languageCode: keyof typeof SUPPORTED_LANGUAGES) => {
     setLanguage(languageCode);
+    
+    // For Spanish, just update the language state without page reload
+    // The middleware will handle routing appropriately
+    if (languageCode === 'es') {
+      return;
+    }
+    
+    // For other languages, navigate to the language-specific route
+    window.location.href = `/${languageCode}`;
   };
 
   return (
@@ -25,33 +34,16 @@ const LanguageSwitcher: React.FC = () => {
       
       <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
         {Object.entries(supportedLanguages).map(([code, lang]) => (
-          code === 'es' ? (
-            <button
-              key={code}
-              onClick={() => {
-                changeLanguage(code as keyof typeof SUPPORTED_LANGUAGES);
-                // Force a page reload to ensure the language change takes effect
-                window.location.href = '/';
-              }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                language === code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-              }`}
-            >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-sm font-medium">{lang.name}</span>
-            </button>
-          ) : (
-            <Link
-              key={code}
-              href={`/${code}`}
-              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                language === code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-              }`}
-            >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-sm font-medium">{lang.name}</span>
-            </Link>
-          )
+          <button
+            key={code}
+            onClick={() => changeLanguage(code as keyof typeof SUPPORTED_LANGUAGES)}
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+              language === code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+            }`}
+          >
+            <span className="text-lg">{lang.flag}</span>
+            <span className="text-sm font-medium">{lang.name}</span>
+          </button>
         ))}
       </div>
     </div>

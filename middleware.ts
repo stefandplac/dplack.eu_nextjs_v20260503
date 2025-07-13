@@ -94,9 +94,23 @@ export async function middleware(request: NextRequest) {
     const storedLanguage = request.cookies.get('preferred-language')?.value;
     
     if (storedLanguage && SUPPORTED_LANGUAGES.includes(storedLanguage)) {
-      // User has a stored preference, redirect to that language
-      const response = NextResponse.redirect(new URL(`/${storedLanguage}`, request.url));
-      return response;
+      // User has a stored preference
+      if (storedLanguage === 'es') {
+        // For Spanish, stay on root path but set the cookie
+        const response = NextResponse.next();
+        response.cookies.set('preferred-language', 'es', {
+          maxAge: 60 * 60 * 24 * 365, // 1 year
+          path: '/',
+          httpOnly: false, // Allow JavaScript access
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+        return response;
+      } else {
+        // Redirect to stored language
+        const response = NextResponse.redirect(new URL(`/${storedLanguage}`, request.url));
+        return response;
+      }
     }
 
     // Detect language from browser preferences
@@ -105,7 +119,15 @@ export async function middleware(request: NextRequest) {
     
     // If Spanish is detected, stay on root path
     if (detectedLanguage === 'es') {
-      return;
+      const response = NextResponse.next();
+      response.cookies.set('preferred-language', 'es', {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: '/',
+        httpOnly: false, // Allow JavaScript access
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+      return response;
     }
 
     // Redirect to detected language
@@ -124,7 +146,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // For any other path, redirect to Spanish (default)
-  return NextResponse.redirect(new URL(pathname, request.url))
+  return NextResponse.redirect(new URL('/', request.url))
 }
 
 export const config = {
