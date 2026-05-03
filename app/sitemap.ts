@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   SUPPORTED_LANGUAGES.forEach((lang) => {
     if (lang !== 'es') {
       routes.push({
-        url: `${baseUrl}/${lang}`,
+        url: `${baseUrl}/${lang}/`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.9,

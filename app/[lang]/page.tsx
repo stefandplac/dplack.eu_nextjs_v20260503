@@ -20,19 +20,13 @@ export default function LanguagePage({ params }: PageProps) {
   const { setLanguage } = useLanguage();
   const { lang } = params;
 
-  // Set language based on URL parameter
+  // Set language based on URL parameter (Spanish uses `/`, handled in middleware)
   React.useEffect(() => {
+    if (lang === 'es') return;
     if (SUPPORTED_LANGUAGES[lang as keyof typeof SUPPORTED_LANGUAGES]) {
       setLanguage(lang as keyof typeof SUPPORTED_LANGUAGES);
     }
   }, [lang, setLanguage]);
-
-  // Redirect to root if Spanish is selected
-  React.useEffect(() => {
-    if (lang === 'es') {
-      window.location.href = '/';
-    }
-  }, [lang]);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">

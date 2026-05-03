@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react';
-import Link from 'next/link';
 import { useLanguage, SUPPORTED_LANGUAGES } from '../contexts/LanguageContext';
 
 const LanguageSwitcher: React.FC = () => {
@@ -11,15 +10,20 @@ const LanguageSwitcher: React.FC = () => {
 
   const changeLanguage = (languageCode: keyof typeof SUPPORTED_LANGUAGES) => {
     setLanguage(languageCode);
-    
-    // For Spanish, just update the language state without page reload
-    // The middleware will handle routing appropriately
+
+    const path =
+      typeof window !== 'undefined'
+        ? window.location.pathname.replace(/\/$/, '') || '/'
+        : '/';
+
     if (languageCode === 'es') {
+      if (path !== '/' && path !== '') {
+        window.location.href = '/';
+      }
       return;
     }
-    
-    // For other languages, navigate to the language-specific route
-    window.location.href = `/${languageCode}`;
+
+    window.location.href = `/${languageCode}/`;
   };
 
   return (

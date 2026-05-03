@@ -68,6 +68,11 @@ async function detectLanguageFromIP(request: NextRequest): Promise<string> {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
+  // Spanish is served from `/` only; avoid `/es` ↔ `/` client redirect loops
+  if (pathname === '/es' || pathname === '/es/') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
   
   // Skip middleware for static files and API routes
   if (

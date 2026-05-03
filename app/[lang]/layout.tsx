@@ -70,12 +70,14 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 
   const content = languageContent[lang as keyof typeof languageContent] || languageContent.es;
 
+  const canonicalPath = lang === 'es' ? 'https://dplack.eu/' : `https://dplack.eu/${lang}/`;
+
   return {
     title: content.title,
     description: content.description,
     keywords: content.keywords,
     alternates: {
-      canonical: `https://dplack.eu/${lang}`,
+      canonical: canonicalPath,
       languages: {
         'es': 'https://dplack.eu/',
         'en': 'https://dplack.eu/en',
@@ -91,7 +93,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       description: content.description,
       locale: localeMap[lang] || 'es_ES',
       type: 'website',
-      url: `https://dplack.eu/${lang}`,
+      url: canonicalPath.replace(/\/$/, '') || 'https://dplack.eu',
       siteName: 'D-PLACK CONSTRUCT',
     },
     twitter: {
