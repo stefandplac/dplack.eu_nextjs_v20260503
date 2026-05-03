@@ -69,7 +69,7 @@ dplack.eu_nextjs/
 │   └── contexts/          # React contexts
 ├── public/                # Static assets
 ├── middleware.ts          # Next.js middleware
-└── next.config.js         # Next.js configuration
+└── next.config.mjs        # Next.js configuration
 ```
 
 ## Internationalization

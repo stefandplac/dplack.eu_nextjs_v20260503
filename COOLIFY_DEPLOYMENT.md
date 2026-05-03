@@ -16,7 +16,7 @@ Make sure your repository contains:
 - `Dockerfile` ✅
 - `docker-compose.yml` ✅
 - `package.json` ✅
-- `next.config.js` ✅
+- `next.config.mjs` ✅ (OpenNext / Cloudflare: run `npm run build:cloudflare` or `npx opennextjs-cloudflare build` after `npm ci`)
 - `.dockerignore` ✅
 
 ### 2. Coolify Configuration
